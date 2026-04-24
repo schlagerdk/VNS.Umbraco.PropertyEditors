@@ -8,8 +8,9 @@ set -e
 # Get current version from package.json
 CURRENT_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
 APP_PLUGIN_DIR="App_Plugins/VNS.Umbraco.PropertyEditors"
-UMBRACO_PACKAGE_FILE="$APP_PLUGIN_DIR/umbraco-package.json"
-DIST_PACKAGE_DIR="dist/VNS.Umbraco.PropertyEditors"
+PROPERTY_EDITORS_DIR="src/PropertyEditors"
+DIST_DIR="dist"
+RELEASE_DIR="release"
 
 echo "Building VNS.Umbraco.PropertyEditors..."
 echo "Current version: $CURRENT_VERSION"
@@ -33,12 +34,15 @@ if [ ! -z "$NEW_VERSION" ]; then
         sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" package.json
     fi
 
-    # Update App_Plugins/VNS.Umbraco.PropertyEditors/umbraco-package.json
-    if command -v jq &> /dev/null; then
-        jq --arg ver "$NEW_VERSION" '.version = $ver' "$UMBRACO_PACKAGE_FILE" > "$UMBRACO_PACKAGE_FILE.tmp" && mv "$UMBRACO_PACKAGE_FILE.tmp" "$UMBRACO_PACKAGE_FILE"
-    else
-        sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$UMBRACO_PACKAGE_FILE"
-    fi
+    for editor_package_file in "$PROPERTY_EDITORS_DIR"/*/umbraco-package.json; do
+        [ -f "$editor_package_file" ] || continue
+
+        if command -v jq &> /dev/null; then
+            jq --arg ver "$NEW_VERSION" '.version = $ver' "$editor_package_file" > "$editor_package_file.tmp" && mv "$editor_package_file.tmp" "$editor_package_file"
+        else
+            sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$editor_package_file"
+        fi
+    done
 
     # Update package-lock.json
     echo "Updating package-lock.json..."
@@ -52,42 +56,63 @@ fi
 
 # Ensure target plugin directory exists
 mkdir -p "$APP_PLUGIN_DIR"
-mkdir -p "dist"
+mkdir -p "$DIST_DIR"
+mkdir -p "$RELEASE_DIR"
 
-# Clean previous build output
-if [ -d "$APP_PLUGIN_DIR/dist" ]; then
-    echo "Cleaning previous build..."
-    rm -rf "$APP_PLUGIN_DIR/dist"
+# Clean previous generated output
+echo "Cleaning previous build output..."
+find "$APP_PLUGIN_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+find "$DIST_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+find "$RELEASE_DIR" -mindepth 1 -maxdepth 1 -exec rm -rf {} + 2>/dev/null || true
+
+EDITOR_COUNT=0
+
+for editor_dir in "$PROPERTY_EDITORS_DIR"/*; do
+    [ -d "$editor_dir" ] || continue
+
+    editor_name=$(basename "$editor_dir")
+    editor_package_file="$editor_dir/umbraco-package.json"
+    editor_entry_file=$(find "$editor_dir" -maxdepth 1 -name '*.element.ts' | head -n 1)
+    editor_app_plugin_dir="$APP_PLUGIN_DIR/$editor_name"
+    dist_package_dir="$DIST_DIR/$editor_name"
+    package_name="$editor_name-$CURRENT_VERSION.zip"
+    package_path="$RELEASE_DIR/$package_name"
+
+    if [ ! -f "$editor_package_file" ]; then
+        echo "Error: Missing package manifest for $editor_name at $editor_package_file"
+        exit 1
+    fi
+
+    if [ -z "$editor_entry_file" ]; then
+        echo "Error: Missing .element.ts entry file for $editor_name"
+        exit 1
+    fi
+
+    echo "Running Vite build for $editor_name..."
+    EDITOR_NAME="$editor_name" EDITOR_ENTRY="$editor_entry_file" npm run vite:build
+
+    mkdir -p "$dist_package_dir"
+    cp "$editor_package_file" "$editor_app_plugin_dir/umbraco-package.json"
+    cp "$editor_package_file" "$dist_package_dir/umbraco-package.json"
+    cp "$editor_app_plugin_dir/umbraco-package.js" "$dist_package_dir/umbraco-package.js"
+
+    echo "Packaging release artifact for $editor_name..."
+    zip -qr "$package_path" "$dist_package_dir"
+
+    echo "Built editor files are in: $editor_app_plugin_dir/"
+    echo "Deployable package files are in: $dist_package_dir/"
+    echo "Release artifact: $package_path"
+    echo ""
+    echo "Files ready for deployment:"
+    ls -la "$editor_app_plugin_dir/"
+    echo ""
+
+    EDITOR_COUNT=$((EDITOR_COUNT + 1))
+done
+
+if [ "$EDITOR_COUNT" -eq 0 ]; then
+    echo "Error: No property editor folders found in $PROPERTY_EDITORS_DIR"
+    exit 1
 fi
 
-if [ -d "$DIST_PACKAGE_DIR" ]; then
-    rm -rf "$DIST_PACKAGE_DIR"
-fi
-
-# Build with Vite
-echo "Running Vite build..."
-npm run vite:build
-
-# Create raw distribution files in root dist folder
-mkdir -p "$DIST_PACKAGE_DIR"
-cp "$UMBRACO_PACKAGE_FILE" "$DIST_PACKAGE_DIR/umbraco-package.json"
-cp "$APP_PLUGIN_DIR/dist/umbraco-package.js" "$DIST_PACKAGE_DIR/umbraco-package.js"
-
-# Package the raw dist folder as a release artifact
-PACKAGE_NAME="VNS.Umbraco.PropertyEditors-$CURRENT_VERSION.zip"
-PACKAGE_PATH="dist/$PACKAGE_NAME"
-
-if [ -f "$PACKAGE_PATH" ]; then
-    rm "$PACKAGE_PATH"
-fi
-
-echo "Packaging release artifact..."
-zip -qr "$PACKAGE_PATH" "$DIST_PACKAGE_DIR"
-
-echo "Build completed successfully!"
-echo "Distribution files are in: $APP_PLUGIN_DIR/dist/"
-echo "Deployable package files are in: $DIST_PACKAGE_DIR/"
-echo "Release artifact: $PACKAGE_PATH"
-echo ""
-echo "Files ready for deployment:"
-ls -la "$APP_PLUGIN_DIR/dist/"
+echo "Build completed successfully for $EDITOR_COUNT editor(s)!"

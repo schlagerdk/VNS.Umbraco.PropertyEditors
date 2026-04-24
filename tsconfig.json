@@ -9,7 +9,6 @@
     "resolveJsonModule": true,
     "isolatedModules": true,
     "noEmit": true,
-    "outDir": "App_Plugins/VNS.Umbraco.PropertyEditors/dist",
     "strict": true,
     "noUnusedLocals": true,
     "noUnusedParameters": true,
