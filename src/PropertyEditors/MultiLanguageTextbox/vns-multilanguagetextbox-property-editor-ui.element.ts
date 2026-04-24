@@ -15,7 +15,7 @@ interface CultureInfo {
   isMandatory: boolean;
 }
 
-@customElement('vns-multilanguagetextbox-property-editor-ui')
+@customElement('vns-umbraco-property-editors-multilanguagetextbox-property-editor-ui')
 export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitElement implements UmbPropertyEditorUiElement {
   private _value: string = '';
   private _pendingValue: string | null = null;
@@ -278,6 +278,6 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
 
 declare global {
   interface HTMLElementTagNameMap {
-    'multilanguage-textbox-property-editor-ui': MultiLanguageTextboxPropertyEditorUIElement;
+    'vns-umbraco-property-editors-multilanguagetextbox-property-editor-ui': MultiLanguageTextboxPropertyEditorUIElement;
   }
 }

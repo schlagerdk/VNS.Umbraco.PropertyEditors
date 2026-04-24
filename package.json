@@ -1,5 +1,5 @@
 {
-  "name": "vns.multilanguagetextbox",
+  "name": "vns-umbraco-property-editors",
   "version": "1.0.0",
   "description": "Multi-language textbox property editor for Umbraco 14+",
   "author": "Martin H. Schläger",

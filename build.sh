@@ -1,14 +1,16 @@
 #!/bin/bash
 
-# VNS.MultiLanguageTextbox Build Script
+# VNS.Umbraco.PropertyEditors Build Script
 # Dette script bygger projektet og forbereder det til distribution
 
 set -e
 
 # Get current version from package.json
 CURRENT_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+APP_PLUGIN_DIR="App_Plugins/VNS.Umbraco.PropertyEditors"
+UMBRACO_PACKAGE_FILE="$APP_PLUGIN_DIR/umbraco-package.json"
 
-echo "🔨 Building VNS.MultiLanguageTextbox..."
+echo "Building VNS.Umbraco.PropertyEditors..."
 echo "Current version: $CURRENT_VERSION"
 echo ""
 read -p "Enter new version (or press Enter to keep $CURRENT_VERSION): " NEW_VERSION
@@ -21,7 +23,7 @@ if [ ! -z "$NEW_VERSION" ]; then
         exit 1
     fi
 
-    echo "🔄 Updating version to $NEW_VERSION..."
+    echo "Updating version to $NEW_VERSION..."
 
     # Update package.json
     if command -v jq &> /dev/null; then
@@ -30,37 +32,36 @@ if [ ! -z "$NEW_VERSION" ]; then
         sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" package.json
     fi
 
-    # Update umbraco-package.json
+    # Update App_Plugins/VNS.Umbraco.PropertyEditors/umbraco-package.json
     if command -v jq &> /dev/null; then
-        jq --arg ver "$NEW_VERSION" '.version = $ver' umbraco-package.json > umbraco-package.json.tmp && mv umbraco-package.json.tmp umbraco-package.json
+        jq --arg ver "$NEW_VERSION" '.version = $ver' "$UMBRACO_PACKAGE_FILE" > "$UMBRACO_PACKAGE_FILE.tmp" && mv "$UMBRACO_PACKAGE_FILE.tmp" "$UMBRACO_PACKAGE_FILE"
     else
-        sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" umbraco-package.json
+        sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$UMBRACO_PACKAGE_FILE"
     fi
 
     # Update package-lock.json
-    echo "🔄 Updating package-lock.json..."
+    echo "Updating package-lock.json..."
     npm install --package-lock-only
 
-    echo "✅ Version updated to $NEW_VERSION"
+    echo "Version updated to $NEW_VERSION"
     echo ""
 fi
 
-# Clean previous build
-if [ -d "dist" ]; then
-    echo "🧹 Cleaning previous build..."
-    rm -rf dist
+# Ensure target plugin directory exists
+mkdir -p "$APP_PLUGIN_DIR"
+
+# Clean previous build output
+if [ -d "$APP_PLUGIN_DIR/dist" ]; then
+    echo "Cleaning previous build..."
+    rm -rf "$APP_PLUGIN_DIR/dist"
 fi
 
 # Build with Vite
-echo "📦 Running Vite build..."
+echo "Running Vite build..."
 npm run vite:build
 
-# Copy umbraco-package.json to dist
-echo "📋 Copying umbraco-package.json..."
-cp umbraco-package.json dist/VNS.MultiLanguageTextbox/
-
-echo "✅ Build completed successfully!"
-echo "📁 Distribution files are in: dist/VNS.MultiLanguageTextbox/"
+echo "Build completed successfully!"
+echo "Distribution files are in: $APP_PLUGIN_DIR/dist/"
 echo ""
 echo "Files ready for deployment:"
-ls -la dist/VNS.MultiLanguageTextbox/
+ls -la "$APP_PLUGIN_DIR/dist/"

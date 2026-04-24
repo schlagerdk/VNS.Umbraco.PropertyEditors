@@ -3,16 +3,16 @@ import { defineConfig } from 'vite';
 export default defineConfig({
   build: {
     lib: {
-      entry: "src/vns-multilanguagetextbox-property-editor-ui.element.ts",
+      entry: "src/umbraco-package.ts",
       formats: ["es"],
-      fileName: "vns-multilanguagetextbox",
+      fileName: "umbraco-package",
     },
-    outDir: "dist/VNS.MultiLanguageTextbox",
+    outDir: "App_Plugins/VNS.Umbraco.PropertyEditors/dist",
     emptyOutDir: true,
     sourcemap: false,
     rollupOptions: {
       external: [/^@umbraco/],
     },
   },
-  base: "/App_Plugins/VNS.MultiLanguageTextbox/",
+  base: "/App_Plugins/VNS.Umbraco.PropertyEditors/",
 });
