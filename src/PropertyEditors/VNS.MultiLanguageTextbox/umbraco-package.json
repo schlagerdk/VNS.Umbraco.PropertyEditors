@@ -1,43 +1,44 @@
 {
-	"name": "VNS Umbraco Property Editors Multi Language Textbox",
-	"version": "1.0.0",
-	"extensions": [
-		{
-			"type": "propertyEditorUi",
-			"alias": "VNS.Umbraco.PropertyEditors.PropertyEditor.MultiLanguageTextbox.Ui",
-			"name": "VNS Umbraco Property Editors Multi Language Textbox Property Editor UI",
-			"element": "/App_Plugins/VNS.Umbraco.PropertyEditors/VNS.MultiLanguageTextbox/umbraco-package.js",
-			"elementName": "vns-umbraco-property-editors-multilanguagetextbox-property-editor-ui",
-			"meta": {
-				"label": "Multi Language Textbox",
-				"icon": "icon-indent",
-				"group": "common",
-				"propertyEditorSchemaAlias": "Umbraco.Plain.String",
-				"settings": {
-					"properties": [
-						{
-							"alias": "useTextArea",
-							"label": "Use text area",
-							"description": "Use a text area instead of text input field",
-							"propertyEditorUiAlias": "Umb.PropertyEditorUi.Toggle"
-						},
-						{
-							"alias": "isMandatoryLanguageRequired",
-							"label": "Make mandatory language(s) required",
-							"description": "Make mandatory language(s) required. Only applicable if the property is not marked as mandatory",
-							"propertyEditorUiAlias": "Umb.PropertyEditorUi.Toggle"
-						}
-					]
-				}
-			}
-		},
-		{
-			"type": "propertyEditorSchema",
-			"alias": "VNS.Umbraco.PropertyEditors.PropertyEditor.MultiLanguageTextbox",
-			"name": "VNS Umbraco Property Editors Multi Language Textbox Property Editor Schema",
-			"meta": {
-				"defaultPropertyEditorUiAlias": "VNS.Umbraco.PropertyEditors.PropertyEditor.MultiLanguageTextbox.Ui"
-			}
-		}
-	]
+  "$schema": "../../umbraco-package-schema.json",
+  "name": "VNS.MultiLanguageTextbox",
+  "version": "1.0.1",
+  "extensions": [
+    {
+      "type": "propertyEditorUi",
+      "alias": "VNS.MultiLanguageTextbox.PropertyEditorUi",
+      "name": "VNS Multi Language Textbox Property Editor UI",
+      "element": "/App_Plugins/VNS.MultiLanguageTextbox/vns-multilanguagetextbox.js",
+      "elementName": "vns-multilanguagetextbox-property-editor-ui",
+      "meta": {
+        "label": "Multi Language Textbox",
+        "icon": "icon-indent",
+        "group": "common",
+        "propertyEditorSchemaAlias": "Umbraco.Plain.String",
+        "settings": {
+          "properties": [
+            {
+              "alias": "useTextArea",
+              "label": "Use text area",
+              "description": "Use a text area instead of text input field",
+              "propertyEditorUiAlias": "Umb.PropertyEditorUi.Toggle"
+            },
+            {
+              "alias": "isMandatoryLanguageRequired",
+              "label": "Make mandatory language(s) required",
+              "description": "Make mandatory language(s) required. Only applicable if the property is not marked as mandatory",
+              "propertyEditorUiAlias": "Umb.PropertyEditorUi.Toggle"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "propertyEditorSchema",
+      "alias": "VNS.MultiLanguageTextbox.PropertyEditorSchema",
+      "name": "VNS Multi Language Textbox Property Editor Schema",
+      "meta": {
+        "defaultPropertyEditorUiAlias": "VNS.MultiLanguageTextbox.PropertyEditorUi"
+      }
+    }
+  ]
 }

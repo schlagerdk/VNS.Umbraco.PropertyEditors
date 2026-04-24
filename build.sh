@@ -5,52 +5,86 @@
 
 set -e
 
-# Get current version from package.json
-CURRENT_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+# Get current package version from package.json
+CURRENT_PACKAGE_VERSION=$(grep -o '"version": "[^"]*"' package.json | head -n 1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
 APP_PLUGIN_DIR="App_Plugins/VNS.Umbraco.PropertyEditors"
 PROPERTY_EDITORS_DIR="src/PropertyEditors"
 DIST_DIR="dist"
 RELEASE_DIR="release"
 
 echo "Building VNS.Umbraco.PropertyEditors..."
-echo "Current version: $CURRENT_VERSION"
+echo "Current package version: $CURRENT_PACKAGE_VERSION"
+echo "Current editor versions:"
+for editor_package_file in "$PROPERTY_EDITORS_DIR"/*/umbraco-package.json; do
+    [ -f "$editor_package_file" ] || continue
+    editor_name=$(basename "$(dirname "$editor_package_file")")
+    editor_version=$(grep -o '"version": "[^"]*"' "$editor_package_file" | head -n 1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
+    echo "- $editor_name: $editor_version"
+done
 echo ""
-read -p "Enter new version (or press Enter to keep $CURRENT_VERSION): " NEW_VERSION
+read -p "Enter new package version (or press Enter to keep $CURRENT_PACKAGE_VERSION): " NEW_PACKAGE_VERSION
+read -p "Enter editor version updates (format: Editor=1.2.3, comma-separated, or Enter to keep): " EDITOR_VERSION_UPDATES
 
-# Update version if provided
-if [ ! -z "$NEW_VERSION" ]; then
+# Update package version if provided
+if [ ! -z "$NEW_PACKAGE_VERSION" ]; then
     # Validate semantic version format
-    if ! [[ $NEW_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
-        echo "Error: Version must be in semantic version format (e.g., 1.0.1)"
+    if ! [[ $NEW_PACKAGE_VERSION =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+        echo "Error: Package version must be in semantic version format (e.g., 1.0.1)"
         exit 1
     fi
 
-    echo "Updating version to $NEW_VERSION..."
+    echo "Updating package version to $NEW_PACKAGE_VERSION..."
 
     # Update package.json
     if command -v jq &> /dev/null; then
-        jq --arg ver "$NEW_VERSION" '.version = $ver' package.json > package.json.tmp && mv package.json.tmp package.json
+        jq --arg ver "$NEW_PACKAGE_VERSION" '.version = $ver' package.json > package.json.tmp && mv package.json.tmp package.json
     else
-        sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" package.json
+        sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_PACKAGE_VERSION\"/" package.json
     fi
 
-    for editor_package_file in "$PROPERTY_EDITORS_DIR"/*/umbraco-package.json; do
-        [ -f "$editor_package_file" ] || continue
-
-        if command -v jq &> /dev/null; then
-            jq --arg ver "$NEW_VERSION" '.version = $ver' "$editor_package_file" > "$editor_package_file.tmp" && mv "$editor_package_file.tmp" "$editor_package_file"
-        else
-            sed -i '' "s/\"version\": \".*\"/\"version\": \"$NEW_VERSION\"/" "$editor_package_file"
-        fi
-    done
-
-    # Update package-lock.json
     echo "Updating package-lock.json..."
     npm install --package-lock-only
+fi
 
-    CURRENT_VERSION="$NEW_VERSION"
+# Update selected editor versions if provided
+if [ ! -z "$EDITOR_VERSION_UPDATES" ]; then
+    IFS=',' read -ra EDITOR_UPDATES <<< "$EDITOR_VERSION_UPDATES"
+    for update in "${EDITOR_UPDATES[@]}"; do
+        entry=$(echo "$update" | tr -d ' ')
+        if [ -z "$entry" ]; then
+            continue
+        fi
 
-    echo "Version updated to $NEW_VERSION"
+        if [[ "$entry" != *=* ]]; then
+            echo "Error: Invalid editor update format '$entry'. Use Editor=1.2.3"
+            exit 1
+        fi
+
+        editor_name="${entry%%=*}"
+        editor_version="${entry#*=}"
+
+        if ! [[ $editor_version =~ ^[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Error: Version for $editor_name must be semantic (e.g., 1.0.1)"
+            exit 1
+        fi
+
+        editor_package_file="$PROPERTY_EDITORS_DIR/$editor_name/umbraco-package.json"
+        if [ ! -f "$editor_package_file" ]; then
+            echo "Error: Editor '$editor_name' not found at $editor_package_file"
+            exit 1
+        fi
+
+        echo "Updating $editor_name version to $editor_version..."
+        if command -v jq &> /dev/null; then
+            jq --arg ver "$editor_version" '.version = $ver' "$editor_package_file" > "$editor_package_file.tmp" && mv "$editor_package_file.tmp" "$editor_package_file"
+        else
+            sed -i '' "s/\"version\": \".*\"/\"version\": \"$editor_version\"/" "$editor_package_file"
+        fi
+    done
+fi
+
+if [ ! -z "$NEW_PACKAGE_VERSION" ] || [ ! -z "$EDITOR_VERSION_UPDATES" ]; then
+    echo "Version updates completed."
     echo ""
 fi
 
@@ -72,10 +106,11 @@ for editor_dir in "$PROPERTY_EDITORS_DIR"/*; do
 
     editor_name=$(basename "$editor_dir")
     editor_package_file="$editor_dir/umbraco-package.json"
+    editor_version=$(grep -o '"version": "[^"]*"' "$editor_package_file" | head -n 1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
     editor_entry_file=$(find "$editor_dir" -maxdepth 1 -name '*.element.ts' | head -n 1)
     editor_app_plugin_dir="$APP_PLUGIN_DIR/$editor_name"
     dist_package_dir="$DIST_DIR/$editor_name"
-    package_name="$editor_name-$CURRENT_VERSION.zip"
+    package_name="$editor_name-$editor_version.zip"
     package_path="$RELEASE_DIR/$package_name"
 
     if [ ! -f "$editor_package_file" ]; then

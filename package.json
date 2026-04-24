@@ -1,18 +1,18 @@
 {
-	"name": "vns-umbraco-property-editors",
-	"version": "1.0.0",
-	"description": "Multi-language textbox property editor for Umbraco 14+",
-	"author": "Martin H. Schläger",
-	"license": "MIT",
-	"type": "module",
-	"scripts": {
-		"build": "./build.sh",
-		"vite:build": "vite build",
-		"watch": "vite build --watch"
-	},
-	"devDependencies": {
-		"@umbraco-cms/backoffice": "^17.0.0",
-		"typescript": "^5.3.3",
-		"vite": "^5.0.11"
-	}
+  "name": "vns-umbraco-property-editors",
+  "version": "1.0.1",
+  "description": "Multi-language textbox property editor for Umbraco 14+",
+  "author": "Martin H. Schläger",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "build": "./build.sh",
+    "vite:build": "vite build",
+    "watch": "vite build --watch"
+  },
+  "devDependencies": {
+    "@umbraco-cms/backoffice": "^17.0.0",
+    "typescript": "^5.3.3",
+    "vite": "^5.0.11"
+  }
 }
