@@ -27,13 +27,13 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
   public set value(newValue: string) {
     const oldValue = this._value;
     this._value = newValue;
-    
+
     if (this._languages.length > 0 && oldValue !== newValue) {
       this._parseValue();
     } else if (oldValue !== newValue) {
       this._pendingValue = newValue;
     }
-    
+
     this.requestUpdate('value', oldValue);
   }
 
@@ -62,16 +62,16 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
 
   async connectedCallback() {
     super.connectedCallback();
-    
+
     if (this._pendingValue !== null) {
       this._value = this._pendingValue;
       this._pendingValue = null;
     }
-    
+
     // Initialize immediately with any data we have
     this._parseValue();
     this._initialized = true;
-    
+
     // Start loading languages in background using Umbraco context
     this._loadLanguagesFromContext();
   }
@@ -80,27 +80,27 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
     try {
       // Use dynamic import to load Umbraco's language repository
       const { UmbLanguageCollectionRepository } = await import('@umbraco-cms/backoffice/language');
-      
+
       // Create repository instance
       const repository = new UmbLanguageCollectionRepository(this);
-      
+
       // Request all languages
       const { data } = await repository.requestCollection({});
-      
+
       if (data && data.items && data.items.length > 0) {
         this._languages = data.items.map((lang: any) => ({
           culture: lang.unique || lang.isoCode,
           name: lang.name,
           isMandatory: lang.isDefault || false
         }));
-        
+
         // Ensure all languages have values in the map
         this._languages.forEach(lang => {
           if (!this._textValues.has(lang.culture)) {
             this._textValues.set(lang.culture, '');
           }
         });
-        
+
         // Re-parse value to populate new languages
         this._parseValue();
         this.requestUpdate();
@@ -109,7 +109,7 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
     } catch (error) {
       // Silent fallback
     }
-    
+
     // Fallback to hardcoded list
     if (this._languages.length === 0) {
       this._languages = [
@@ -123,7 +123,7 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
 
   private _parseValue() {
     this._textValues.clear();
-    
+
     if (!this.value || this.value === '' || this.value === '[]') {
       this._languages.forEach(lang => {
         this._textValues.set(lang.culture, '');
@@ -133,7 +133,7 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
 
     try {
       let values: LanguageTextValue[];
-      
+
       if (typeof this.value === 'object') {
         values = Array.isArray(this.value) ? this.value : [this.value];
       } else if (typeof this.value === 'string') {
@@ -141,11 +141,11 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
       } else {
         values = [];
       }
-      
+
       this._languages.forEach(lang => {
         this._textValues.set(lang.culture, '');
       });
-      
+
       if (Array.isArray(values)) {
         values.forEach(v => {
           if (v && v.culture) {
@@ -175,7 +175,7 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
     }));
 
     const newValue = JSON.stringify(values);
-    
+
     if (this._value !== newValue) {
       this._value = newValue;
       this.dispatchEvent(new UmbChangeEvent());
