@@ -7,23 +7,27 @@ A shared Umbraco 14+ backoffice package for custom property editors.
 ## Overview
 
 This project is structured to host multiple property editors side by side.
-Each editor lives in its own folder, while all manifests are collected in one place and exported from a single bundle entry.
+Each editor lives in its own folder and is built/deployed independently.
 
 ## Project Structure
 
 ```text
 src/
 ├── PropertyEditors/
-│   └── MultiLanguageTextbox/
-│       └── vns-multilanguagetextbox-property-editor-ui.element.ts
-├── manifests.ts
-└── umbraco-package.ts
+│   └── VNS.MultiLanguageTextbox/
+│       ├── umbraco-package.json
+│       └── vns-multilanguagetextbox.element.ts
 
 App_Plugins/
 └── VNS.Umbraco.PropertyEditors/
+  └── VNS.MultiLanguageTextbox/
     ├── umbraco-package.json
-    └── dist/
-        └── umbraco-package.js
+    └── umbraco-package.js
+
+dist/
+└── VNS.MultiLanguageTextbox/
+  ├── umbraco-package.json
+  └── umbraco-package.js
 ```
 
 ## Installation
@@ -46,21 +50,20 @@ npm run build
 
 The build output is written to:
 
-- `App_Plugins/VNS.Umbraco.PropertyEditors/dist/umbraco-package.js`
+- `App_Plugins/VNS.Umbraco.PropertyEditors/VNS.MultiLanguageTextbox/`
+- `dist/VNS.MultiLanguageTextbox/`
 
 ## How Property Editors Are Registered
 
-- `src/PropertyEditors/...` contains the editor UI elements.
-- `src/manifests.ts` imports editor elements and exports all manifest objects.
-- `src/umbraco-package.ts` exports `manifests` as extensions bundle content.
-- `App_Plugins/VNS.Umbraco.PropertyEditors/umbraco-package.json` registers the bundle in Umbraco.
+- Each editor has its own `umbraco-package.json` in `src/PropertyEditors/<EditorFolder>/`.
+- Build copies each editor's package files to `App_Plugins/VNS.Umbraco.PropertyEditors/<EditorFolder>/`.
+- The same files are copied to `dist/<EditorFolder>/` for release packaging.
 
 ## Add A New Property Editor
 
 1. Create a new folder under `src/PropertyEditors/<EditorName>/`.
-2. Add the editor element TypeScript file(s).
-3. Import the new element file in `src/manifests.ts`.
-4. Add the new `propertyEditorUi` and `propertyEditorSchema` manifest objects in `src/manifests.ts`.
+2. Add an editor entry file ending in `.element.ts`.
+3. Add an `umbraco-package.json` in that folder.
 5. Make sure aliases follow:
    - `VNS.Umbraco.PropertyEditors.PropertyEditor.<EditorName>.Ui`
    - `VNS.Umbraco.PropertyEditors.PropertyEditor.<EditorName>`
@@ -69,6 +72,9 @@ The build output is written to:
 ## Existing Editor
 
 ### MultiLanguageTextbox
+
+- Folder:
+  `VNS.MultiLanguageTextbox`
 
 - UI alias:
   `VNS.Umbraco.PropertyEditors.PropertyEditor.MultiLanguageTextbox.Ui`

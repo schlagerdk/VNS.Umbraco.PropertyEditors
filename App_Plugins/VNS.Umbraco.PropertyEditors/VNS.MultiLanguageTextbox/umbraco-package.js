@@ -18,13 +18,14 @@ let i = class extends d {
     const t = this._value;
     this._value = e, this._languages.length > 0 && t !== e ? this._parseValue() : t !== e && (this._pendingValue = e), this.requestUpdate("value", t);
   }
+  get _rawConfig() {
+    return this.config ?? {};
+  }
   get _useTextArea() {
-    var e;
-    return ((e = this.config) == null ? void 0 : e.useTextArea) ?? !1;
+    return this._rawConfig.useTextArea ?? !1;
   }
   get _isMandatoryLanguageRequired() {
-    var e;
-    return ((e = this.config) == null ? void 0 : e.isMandatoryLanguageRequired) ?? !1;
+    return this._rawConfig.isMandatoryLanguageRequired ?? !1;
   }
   async connectedCallback() {
     super.connectedCallback(), this._pendingValue !== null && (this._value = this._pendingValue, this._pendingValue = null), this._parseValue(), this._initialized = !0, this._loadLanguagesFromContext();
@@ -64,8 +65,8 @@ let i = class extends d {
         t && t.culture && this._textValues.set(t.culture, t.text || "");
       });
     } catch {
-      this._languages.forEach((t) => {
-        this._textValues.set(t.culture, "");
+      this._languages.forEach((e) => {
+        this._textValues.set(e.culture, "");
       });
     }
     this.requestUpdate();

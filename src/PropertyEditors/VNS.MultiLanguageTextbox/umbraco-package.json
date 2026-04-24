@@ -6,7 +6,7 @@
 			"type": "propertyEditorUi",
 			"alias": "VNS.Umbraco.PropertyEditors.PropertyEditor.MultiLanguageTextbox.Ui",
 			"name": "VNS Umbraco Property Editors Multi Language Textbox Property Editor UI",
-			"element": "/App_Plugins/VNS.Umbraco.PropertyEditors/MultiLanguageTextbox/umbraco-package.js",
+			"element": "/App_Plugins/VNS.Umbraco.PropertyEditors/VNS.MultiLanguageTextbox/umbraco-package.js",
 			"elementName": "vns-umbraco-property-editors-multilanguagetextbox-property-editor-ui",
 			"meta": {
 				"label": "Multi Language Textbox",

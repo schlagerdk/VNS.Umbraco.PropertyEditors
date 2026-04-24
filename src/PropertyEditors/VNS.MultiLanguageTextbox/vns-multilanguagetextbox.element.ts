@@ -38,10 +38,17 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
   }
 
   @property({ type: Object })
-  public config?: {
+  public config?: UmbPropertyEditorUiElement['config'];
+
+  private get _rawConfig(): {
     useTextArea?: boolean;
     isMandatoryLanguageRequired?: boolean;
-  };
+  } {
+    return (this.config ?? {}) as {
+      useTextArea?: boolean;
+      isMandatoryLanguageRequired?: boolean;
+    };
+  }
 
   @state()
   private _languages: CultureInfo[] = [];
@@ -53,11 +60,11 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
   private _initialized: boolean = false;
 
   private get _useTextArea(): boolean {
-    return this.config?.useTextArea ?? false;
+    return this._rawConfig.useTextArea ?? false;
   }
 
   private get _isMandatoryLanguageRequired(): boolean {
-    return this.config?.isMandatoryLanguageRequired ?? false;
+    return this._rawConfig.isMandatoryLanguageRequired ?? false;
   }
 
   async connectedCallback() {
@@ -106,7 +113,7 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
         this.requestUpdate();
         return;
       }
-    } catch (error) {
+    } catch {
       // Silent fallback
     }
 
@@ -150,14 +157,16 @@ export default class MultiLanguageTextboxPropertyEditorUIElement extends UmbLitE
         values.forEach(v => {
           if (v && v.culture) {
             this._textValues.set(v.culture, v.text || '');
-        }
-      });
+          }
+        });
       }
-    } catch (error) {
+    } catch {
       this._languages.forEach(lang => {
         this._textValues.set(lang.culture, '');
       });
-    }    this.requestUpdate();
+    }
+
+    this.requestUpdate();
   }
 
   private _onInput(culture: string, event: Event) {
