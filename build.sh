@@ -9,6 +9,7 @@ set -e
 CURRENT_VERSION=$(grep -o '"version": "[^"]*"' package.json | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
 APP_PLUGIN_DIR="App_Plugins/VNS.Umbraco.PropertyEditors"
 UMBRACO_PACKAGE_FILE="$APP_PLUGIN_DIR/umbraco-package.json"
+RELEASE_DIR="release"
 
 echo "Building VNS.Umbraco.PropertyEditors..."
 echo "Current version: $CURRENT_VERSION"
@@ -43,6 +44,8 @@ if [ ! -z "$NEW_VERSION" ]; then
     echo "Updating package-lock.json..."
     npm install --package-lock-only
 
+    CURRENT_VERSION="$NEW_VERSION"
+
     echo "Version updated to $NEW_VERSION"
     echo ""
 fi
@@ -60,8 +63,21 @@ fi
 echo "Running Vite build..."
 npm run vite:build
 
+# Package the App_Plugins folder as a release artifact
+mkdir -p "$RELEASE_DIR"
+PACKAGE_NAME="VNS.Umbraco.PropertyEditors-$CURRENT_VERSION.zip"
+PACKAGE_PATH="$RELEASE_DIR/$PACKAGE_NAME"
+
+if [ -f "$PACKAGE_PATH" ]; then
+    rm "$PACKAGE_PATH"
+fi
+
+echo "Packaging release artifact..."
+zip -qr "$PACKAGE_PATH" "$APP_PLUGIN_DIR"
+
 echo "Build completed successfully!"
 echo "Distribution files are in: $APP_PLUGIN_DIR/dist/"
+echo "Release artifact: $PACKAGE_PATH"
 echo ""
 echo "Files ready for deployment:"
 ls -la "$APP_PLUGIN_DIR/dist/"
