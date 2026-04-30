@@ -108,7 +108,7 @@ for editor_dir in "$PROPERTY_EDITORS_DIR"/*; do
     editor_package_file="$editor_dir/umbraco-package.json"
     editor_version=$(grep -o '"version": "[^"]*"' "$editor_package_file" | head -n 1 | grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+')
     editor_entry_file=$(find "$editor_dir" -maxdepth 1 -name '*.element.ts' | head -n 1)
-    editor_app_plugin_dir="$APP_PLUGIN_DIR/$editor_name"
+    editor_app_plugin_dir="App_Plugins/$editor_name"
     dist_package_dir="$DIST_DIR/$editor_name"
     package_name="$editor_name-$editor_version.zip"
     package_path="$RELEASE_DIR/$package_name"
@@ -126,10 +126,12 @@ for editor_dir in "$PROPERTY_EDITORS_DIR"/*; do
     echo "Running Vite build for $editor_name..."
     EDITOR_NAME="$editor_name" EDITOR_ENTRY="$editor_entry_file" npm run vite:build
 
+    editor_js_name=$(echo "$editor_name" | tr '[:upper:]' '[:lower:]' | tr '.' '-')
+
     mkdir -p "$dist_package_dir"
     cp "$editor_package_file" "$editor_app_plugin_dir/umbraco-package.json"
     cp "$editor_package_file" "$dist_package_dir/umbraco-package.json"
-    cp "$editor_app_plugin_dir/umbraco-package.js" "$dist_package_dir/umbraco-package.js"
+    cp "$editor_app_plugin_dir/$editor_js_name.js" "$dist_package_dir/$editor_js_name.js"
 
     echo "Packaging release artifact for $editor_name..."
     zip -qr "$package_path" "$dist_package_dir"
