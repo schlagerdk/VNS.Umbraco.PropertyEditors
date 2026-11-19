@@ -1,6 +1,6 @@
 # VNS Multi Language Textbox
 
-A property editor for the Umbraco 17 backoffice that stores a text for each of the site's languages in one property. It shows a text box (or a text area) per language, and can make the mandatory languages required.
+A property editor for the Umbraco 18 backoffice that stores a text for each of the site's languages in one property. It shows a text box (or a text area) per language, and can make the mandatory languages required.
 
 ## Installation
 
@@ -23,7 +23,7 @@ The source code is at [github.com/schlagerdk/VNS.Umbraco.PropertyEditors](https:
 
 ## Requirements
 
-- Umbraco 17, .NET 10
+- Umbraco 18, .NET 10
 
 ## License
 

@@ -1,12 +1,12 @@
 <Project Sdk="Microsoft.NET.Sdk.Razor">
-	<!-- VNS Multi Language Textbox for Umbraco 17: a property editor that stores a text per language. Only static
+	<!-- VNS Multi Language Textbox for Umbraco 18: a property editor that stores a text per language. Only static
        files: the backoffice code in wwwroot, built from ../src with npm run build. -->
 	<PropertyGroup>
 		<TargetFramework>net10.0</TargetFramework>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>VNS.MultiLanguageTextbox</PackageId>
-		<Version>17.0.0</Version>
+		<Version>18.0.0</Version>
 		<Authors>VNS</Authors>
 		<Description>A property editor for the Umbraco backoffice that stores a text for each of the site's languages in one property.</Description>
 		<PackageTags>umbraco;umbraco-marketplace;vns;property-editor;multilingual</PackageTags>
@@ -28,7 +28,16 @@
 		<None Include="docs\README.md" Pack="true" PackagePath="\" />
 	</ItemGroup>
 	<ItemGroup>
-		<!-- Only for the version range: the package is for Umbraco 17 -->
-		<PackageReference Include="Umbraco.Cms.Core" Version="[17.0.0, 18.0.0)" />
+		<!-- Only for the version range: the package is for Umbraco 18 -->
+		<PackageReference Include="Umbraco.Cms.Core" Version="[18.0.0, 19.0.0)" />
 	</ItemGroup>
+	<!-- package.json holds the version (npm run version:set / version:sync). A package is never packed with another
+	     version than package.json and umbraco-package.json, so the NuGet package, the backoffice and the git tag agree. -->
+	<Target Name="CheckVersion" BeforeTargets="GenerateNuspec">
+		<PropertyGroup>
+			<NpmVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/../package.json')), '"version"\s*:\s*"([^"]*)"').Groups[1].Value)</NpmVersion>
+			<UmbracoPackageVersion>$([System.Text.RegularExpressions.Regex]::Match($([System.IO.File]::ReadAllText('$(MSBuildProjectDirectory)/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/umbraco-package.json')), '"version"\s*:\s*"([^"]*)"').Groups[1].Value)</UmbracoPackageVersion>
+		</PropertyGroup>
+		<Error Condition="'$(NpmVersion)' != '$(Version)' Or '$(UmbracoPackageVersion)' != '$(Version)'" Text="The versions differ: NuGet $(Version), package.json $(NpmVersion), umbraco-package.json $(UmbracoPackageVersion). Run npm run version:sync." />
+	</Target>
 </Project>

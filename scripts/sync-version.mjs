@@ -1,11 +1,11 @@
-// Writes the version from package.json to the NuGet package (nuget/VNS.MultiLanguageTextbox.csproj) and to the
-// Umbraco package manifest, both its version and the ?v= on the editor's code, so browsers fetch a new version's code.
+// package.json holds the version. This writes it to the NuGet package (nuget/VNS.MultiLanguageTextbox.csproj) and to
+// the Umbraco package manifest, both its version and the ?v= on the editor's code, so browsers fetch a new version's
+// code.
 //
-// The versions follow Umbraco's: 17.0.0 is for Umbraco 17.0.0 and newer, and a fourth number (17.0.0.1) is a fix of
-// the package for the same Umbraco. npm version can't make a fourth number, so this script sets the version too:
-//   node scripts/sync-version.mjs            sync the version in package.json
-//   node scripts/sync-version.mjs 17.3.0     set the version to 17.3.0, then sync
-//   node scripts/sync-version.mjs --fix      17.0.0 -> 17.0.0.1, 17.0.0.1 -> 17.0.0.2, then sync
+//   node scripts/sync-version.mjs            writes the version in package.json to the others
+//   node scripts/sync-version.mjs 18.0.1     sets 18.0.1 in package.json (and package-lock.json) first
+//
+// Versions follow Umbraco's: 18.0.0, and a fourth number for a fix of the package for the same Umbraco (18.0.0.1).
 import { readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
@@ -21,42 +21,33 @@ const umbracoPackageJsonPath = path.join(
   'VNS.MultiLanguageTextbox',
   'umbraco-package.json'
 );
-
 const versionPattern = /^\d+\.\d+\.\d+(\.\d+)?$/;
+
 const readJson = async (file) => JSON.parse(await readFile(file, 'utf8'));
 const writeJson = (file, json, indent) => writeFile(file, JSON.stringify(json, null, indent) + '\n', 'utf8');
 
 const packageJson = await readJson(packageJsonPath);
-let { version } = packageJson;
+const requested = process.argv[2];
 
-if (!version) {
-  throw new Error('package.json is missing a version field');
-}
-
-const arg = process.argv[2];
-if (arg) {
-  if (arg === '--fix') {
-    const [major, minor, patch, fix = 0] = version.split('.').map(Number);
-    version = `${major}.${minor}.${patch}.${fix + 1}`;
-  } else {
-    version = arg;
+if (requested !== undefined) {
+  if (!versionPattern.test(requested)) {
+    throw new Error(`"${requested}" is not a version such as 18.0.1 or 18.0.1.2`);
   }
-  if (!versionPattern.test(version)) {
-    throw new Error(`"${version}" is not a version like 17.0.0 or 17.0.0.1`);
-  }
-  packageJson.version = version;
+  packageJson.version = requested;
   await writeJson(packageJsonPath, packageJson, '\t');
 
   const packageLock = await readJson(packageLockPath);
-  packageLock.version = version;
+  packageLock.version = requested;
   if (packageLock.packages?.['']) {
-    packageLock.packages[''].version = version;
+    packageLock.packages[''].version = requested;
   }
   await writeJson(packageLockPath, packageLock, 2);
 }
 
-if (!versionPattern.test(version)) {
-  throw new Error(`The version "${version}" in package.json is not a version like 17.0.0 or 17.0.0.1`);
+const { version } = packageJson;
+
+if (!version || !versionPattern.test(version)) {
+  throw new Error(`package.json has no valid version (found "${version}")`);
 }
 
 const withVersion = (url) => url.replace(/\?v=[^&]*$/, '') + `?v=${version}`;
@@ -79,4 +70,4 @@ if (!/<Version>[^<]*<\/Version>/.test(csproj)) {
 }
 await writeFile(csprojPath, csproj.replace(/<Version>[^<]*<\/Version>/, `<Version>${version}</Version>`), 'utf8');
 
-console.log(`Synced version ${version} to the umbraco-package.json and the NuGet package`);
+console.log(`Version ${version}: package.json, umbraco-package.json and the NuGet package`);

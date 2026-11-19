@@ -1,8 +1,8 @@
 # VNS.Umbraco.PropertyEditors
 
-Custom property editors for the Umbraco 17 backoffice. Today it holds one editor, **VNS.MultiLanguageTextbox**, shipped as the NuGet package `VNS.MultiLanguageTextbox`.
+Custom property editors for the Umbraco 18 backoffice. Today it holds one editor, **VNS.MultiLanguageTextbox**, shipped as the NuGet package `VNS.MultiLanguageTextbox`.
 
-> Compatibility: Umbraco 17, .NET 10
+> Compatibility: Umbraco 18, .NET 10
 
 ## Installation
 
@@ -63,47 +63,51 @@ scripts/sync-version.mjs
   - `useTextArea`: use a text area instead of a text box
   - `isMandatoryLanguageRequired`: make the mandatory languages required, when the property is not mandatory
 
-## Versioning
+## Versioning Strategy
 
-The versions follow Umbraco's, as in VNS.Harbor: `17.0.0` is for Umbraco 17.0.0 and newer. A fourth number (`17.0.0.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[17.0.0, 18.0.0)`.
+The versions follow Umbraco's, as in VNS.Harbor: `18.0.0` is for Umbraco 18.0.0 and newer. A fourth number (`18.0.0.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[18.0.0, 19.0.0)`. Umbraco 17 is no longer supported.
 
-There is one version, set in `package.json`. The NuGet package, the Umbraco package manifest and the git tag always have the same version, so a release on GitHub matches the package on nuget.org.
+There is one version: the one in `package.json`. The NuGet package, the Umbraco package manifest (shown under Packages in the backoffice) and the git tag always have the same one.
 
-Never set the version in the `.csproj` or the `umbraco-package.json` by hand: `npm run build` (and so `npm run pack` and the VS Code tasks) first runs `npm run version:sync`, which writes the version from `package.json` to:
+```bash
+npm run version:set 18.0.1   # sets the version and writes it everywhere
+npm run version:sync         # writes the version in package.json everywhere (every build does this)
+```
+
+It is written to:
 
 1. `nuget/VNS.MultiLanguageTextbox.csproj` (`<Version>`)
 2. `nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/umbraco-package.json` (`version`, and `?v=<version>` on the editor's code so browsers fetch the new code)
 
-To set a new version (`npm version` can't make a fourth number, so use these):
-
-```bash
-npm run version:sync -- 17.3.0   # for Umbraco 17.3.0 and newer
-npm run version:fix              # a fix for the same Umbraco: 17.0.0 -> 17.0.0.1 -> 17.0.0.2
-```
+`npm version` can't make a fourth number, so use `npm run version:set`. `dotnet pack` refuses to make a package when the three differ, also when it is run without npm. `npm run release:tag` tags the commit `v<version>`.
 
 ## Release Flow
 
-1. Set the new version with `npm run version:sync -- <version>` or `npm run version:fix`.
+1. Set the version:
+
+```bash
+npm run version:set 18.0.1
+```
+
 2. Build and pack:
 
 ```bash
 npm run release:check
 ```
 
-3. Commit, and tag with the version from `package.json`:
+3. Commit, tag and push:
 
 ```bash
-VERSION=$(node -p "require('./package.json').version")
 git add .
-git commit -m "release: v$VERSION"
-git tag "v$VERSION"
-git push origin master "v$VERSION"
+git commit -m "release: v18.0.1"
+npm run release:tag          # tags v18.0.1; refuses if anything is uncommitted, the versions differ or the tag exists
+git push origin master v18.0.1
 ```
 
-4. Push the same version to nuget.org:
+4. Create a GitHub release from the tag, and push the package to nuget.org:
 
 ```bash
-dotnet nuget push "nuget/artifacts/VNS.MultiLanguageTextbox.$VERSION.nupkg" --source https://api.nuget.org/v3/index.json --api-key <key>
+dotnet nuget push nuget/artifacts/VNS.MultiLanguageTextbox.18.0.1.nupkg --source https://api.nuget.org/v3/index.json --api-key <key>
 ```
 
 ## Add A New Property Editor
