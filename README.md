@@ -65,24 +65,25 @@ scripts/sync-version.mjs
 
 ## Versioning
 
-There is one version, set in `package.json`. The NuGet package, the Umbraco package manifest and the git tag always have the same version, so a release on GitHub matches the package on nuget.org. The NuGet package allows Umbraco `[17.0.0, 18.0.0)`.
+The versions follow Umbraco's, as in VNS.Harbor: `17.0.0` is for Umbraco 17.0.0 and newer. A fourth number (`17.0.0.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[17.0.0, 18.0.0)`.
+
+There is one version, set in `package.json`. The NuGet package, the Umbraco package manifest and the git tag always have the same version, so a release on GitHub matches the package on nuget.org.
 
 Never set the version in the `.csproj` or the `umbraco-package.json` by hand: `npm run build` (and so `npm run pack` and the VS Code tasks) first runs `npm run version:sync`, which writes the version from `package.json` to:
 
 1. `nuget/VNS.MultiLanguageTextbox.csproj` (`<Version>`)
 2. `nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/umbraco-package.json` (`version`, and `?v=<version>` on the editor's code so browsers fetch the new code)
 
-To set a new version:
+To set a new version (`npm version` can't make a fourth number, so use these):
 
 ```bash
-npm run version:patch   # 2.0.0 -> 2.0.1
-npm run version:minor   # 2.0.0 -> 2.1.0
-npm run version:major   # 2.0.0 -> 3.0.0
+npm run version:sync -- 17.3.0   # for Umbraco 17.3.0 and newer
+npm run version:fix              # a fix for the same Umbraco: 17.0.0 -> 17.0.0.1 -> 17.0.0.2
 ```
 
 ## Release Flow
 
-1. Set the new version with `npm run version:patch` (or `minor`/`major`).
+1. Set the new version with `npm run version:sync -- <version>` or `npm run version:fix`.
 2. Build and pack:
 
 ```bash
