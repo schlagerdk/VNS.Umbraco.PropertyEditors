@@ -6,7 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>VNS.MultiLanguageTextbox</PackageId>
-		<Version>18.3.0</Version>
+		<Version>18.3.0.1</Version>
 		<Authors>VNS</Authors>
 		<Description>A property editor for the Umbraco backoffice that stores a text for each of the site's languages in one property.</Description>
 		<PackageTags>umbraco;umbraco-marketplace;vns;property-editor;multilingual</PackageTags>

@@ -14,10 +14,10 @@ dotnet add package VNS.MultiLanguageTextbox
 
 Restart Umbraco and hard refresh the backoffice.
 
-The package is a Razor Class Library with static web assets and no assembly:
+The package is a Razor Class Library with static web assets and no assembly. The browser always gets the files at the URL `/App_Plugins/VNS.MultiLanguageTextbox/...` (`wwwroot` is the site's web root, so it is not part of the URL). Where they are on disk depends on how the site runs:
 
-- **In the site's project** nothing is copied into `wwwroot`: the files are served from the package at `/App_Plugins/VNS.MultiLanguageTextbox`. Removing the package (`dotnet remove package VNS.MultiLanguageTextbox` and a clean build) removes them.
-- **`dotnet publish`** copies them into the publish folder's `wwwroot/App_Plugins/VNS.MultiLanguageTextbox`, as it does with all static web assets. A publish into an empty folder has them only while the package is installed. A publish into a folder that already has an older publish and is not cleaned leaves them there after the package is removed, and Umbraco still loads `umbraco-package.json` from there: delete the folder by hand, or publish into an empty folder.
+- **From the project** (`dotnet run`, development): nothing is copied into the project's `wwwroot`. The files are served straight from the NuGet package cache (`~/.nuget/packages/vns.multilanguagetextbox/<version>/staticwebassets/`). Removing the package (`dotnet remove package VNS.MultiLanguageTextbox` and a clean build) removes them.
+- **After `dotnet publish`** (a server): the files are copied into the publish folder, at `<publish folder>/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/`, as with all static web assets. A publish into an empty folder has them only while the package is installed. A publish into a folder that already has an older publish and is not cleaned leaves them there after the package is removed, and Umbraco still loads `umbraco-package.json` from there: delete the folder by hand, or publish into an empty folder.
 - **No assembly**: from 18.0.0.1 the package has no `VNS.MultiLanguageTextbox.dll`. Earlier versions had one, and when it was left in a publish folder after the package was removed, Umbraco did not start (`FileNotFoundException: Could not load file or assembly 'VNS.MultiLanguageTextbox'`). Delete `VNS.MultiLanguageTextbox.dll` from the publish folder if it is there.
 
 ### Moving from a copied App_Plugins folder

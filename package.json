@@ -1,6 +1,6 @@
 {
 	"name": "vns-umbraco-property-editors",
-	"version": "18.3.0",
+	"version": "18.3.0.1",
 	"private": true,
 	"description": "Multi-language textbox property editor for Umbraco 18, shipped as the NuGet package VNS.MultiLanguageTextbox.",
 	"author": "Martin H. Schläger",
