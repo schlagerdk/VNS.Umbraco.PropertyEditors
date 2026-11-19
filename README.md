@@ -63,43 +63,46 @@ scripts/sync-version.mjs
   - `useTextArea`: use a text area instead of a text box
   - `isMandatoryLanguageRequired`: make the mandatory languages required, when the property is not mandatory
 
-## Versioning Strategy
+## Versioning
 
-The versions follow Umbraco's, as in VNS.Harbor: `17.0.0` is for Umbraco 17.0.0 and newer. A fourth number (`17.0.0.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[17.0.0, 18.0.0)`.
+There is one version, set in `package.json`. The NuGet package, the Umbraco package manifest and the git tag always have the same version, so a release on GitHub matches the package on nuget.org. The NuGet package allows Umbraco `[17.0.0, 18.0.0)`.
 
-To set a new version, change `version` in `package.json` and run:
-
-```bash
-npm run version:sync
-```
-
-It writes the same version to:
+Never set the version in the `.csproj` or the `umbraco-package.json` by hand: `npm run build` (and so `npm run pack` and the VS Code tasks) first runs `npm run version:sync`, which writes the version from `package.json` to:
 
 1. `nuget/VNS.MultiLanguageTextbox.csproj` (`<Version>`)
 2. `nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/umbraco-package.json` (`version`, and `?v=<version>` on the editor's code so browsers fetch the new code)
 
+To set a new version:
+
+```bash
+npm run version:patch   # 2.0.0 -> 2.0.1
+npm run version:minor   # 2.0.0 -> 2.1.0
+npm run version:major   # 2.0.0 -> 3.0.0
+```
+
 ## Release Flow
 
-1. Set the version in `package.json` and run `npm run version:sync`.
+1. Set the new version with `npm run version:patch` (or `minor`/`major`).
 2. Build and pack:
 
 ```bash
 npm run release:check
 ```
 
-3. Commit and tag:
+3. Commit, and tag with the version from `package.json`:
 
 ```bash
+VERSION=$(node -p "require('./package.json').version")
 git add .
-git commit -m "release: vX.Y.Z"
-git tag vX.Y.Z
-git push origin master vX.Y.Z
+git commit -m "release: v$VERSION"
+git tag "v$VERSION"
+git push origin master "v$VERSION"
 ```
 
-4. Push the package to nuget.org:
+4. Push the same version to nuget.org:
 
 ```bash
-dotnet nuget push nuget/artifacts/VNS.MultiLanguageTextbox.X.Y.Z.nupkg --source https://api.nuget.org/v3/index.json --api-key <key>
+dotnet nuget push "nuget/artifacts/VNS.MultiLanguageTextbox.$VERSION.nupkg" --source https://api.nuget.org/v3/index.json --api-key <key>
 ```
 
 ## Add A New Property Editor
