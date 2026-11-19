@@ -6,7 +6,7 @@
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
 		<PackageId>VNS.MultiLanguageTextbox</PackageId>
-		<Version>18.0.0</Version>
+		<Version>18.0.0.1</Version>
 		<Authors>VNS</Authors>
 		<Description>A property editor for the Umbraco backoffice that stores a text for each of the site's languages in one property.</Description>
 		<PackageTags>umbraco;umbraco-marketplace;vns;property-editor;multilingual</PackageTags>
@@ -18,9 +18,14 @@
 		<RepositoryUrl>https://github.com/schlagerdk/VNS.Umbraco.PropertyEditors</RepositoryUrl>
 		<RepositoryType>git</RepositoryType>
 		<!-- The files in wwwroot are served from /App_Plugins/VNS.MultiLanguageTextbox, where Umbraco finds its package
-		     manifest. They are never copied into the site, so removing the package removes them too. -->
+		     manifest. They are not copied into the site's project, but dotnet publish copies them to the publish folder. -->
 		<StaticWebAssetBasePath>/</StaticWebAssetBasePath>
 		<GenerateDocumentationFile>false</GenerateDocumentationFile>
+		<!-- No assembly in the package: it has no .NET code. An assembly would be left in a publish folder that is not
+		     cleaned when the package is removed, and Umbraco, which loads every assembly there, would not start
+		     (FileNotFoundException: VNS.MultiLanguageTextbox). NU5128: the Umbraco dependency is only for the version range. -->
+		<IncludeBuildOutput>false</IncludeBuildOutput>
+		<NoWarn>$(NoWarn);NU5128</NoWarn>
 	</PropertyGroup>
 	<ItemGroup>
 		<None Include="docs\LICENSE.md" Pack="true" PackagePath="\" />

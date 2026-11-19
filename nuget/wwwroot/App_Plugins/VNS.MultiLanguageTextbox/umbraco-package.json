@@ -1,13 +1,13 @@
 {
 	"$schema": "../../umbraco-package-schema.json",
 	"name": "VNS.MultiLanguageTextbox",
-	"version": "18.0.0",
+	"version": "18.0.0.1",
 	"extensions": [
 		{
 			"type": "propertyEditorUi",
 			"alias": "VNS.MultiLanguageTextbox.PropertyEditorUi",
 			"name": "VNS Multi Language Textbox Property Editor UI",
-			"element": "/App_Plugins/VNS.MultiLanguageTextbox/vns-multilanguagetextbox.js?v=18.0.0",
+			"element": "/App_Plugins/VNS.MultiLanguageTextbox/vns-multilanguagetextbox.js?v=18.0.0.1",
 			"elementName": "vns-multilanguagetextbox-property-editor-ui",
 			"meta": {
 				"label": "Multi Language Textbox",

@@ -12,7 +12,7 @@ dotnet add package VNS.MultiLanguageTextbox
 
 Restart the site and hard refresh the backoffice. Then create a data type with the property editor **Multi Language Textbox**.
 
-The package's files are served from `/App_Plugins/VNS.MultiLanguageTextbox` but are never copied into the site, so removing the package removes them too. A site that had the files copied into `wwwroot/App_Plugins/VNS.MultiLanguageTextbox` by hand must delete that folder before installing the package.
+The package's files are served from `/App_Plugins/VNS.MultiLanguageTextbox`. They are not copied into the site's project, but `dotnet publish` copies them into the publish folder's `wwwroot/App_Plugins`, as with all static web assets. When the package is removed, a publish into a folder that is not cleaned leaves them there: delete `wwwroot/App_Plugins/VNS.MultiLanguageTextbox` (and `VNS.MultiLanguageTextbox.dll` from 18.0.0 and earlier) from the publish folder. The package has no assembly, so nothing else is left. A site that had the files copied into `wwwroot/App_Plugins/VNS.MultiLanguageTextbox` by hand must delete that folder before installing the package.
 
 ## Settings
 
