@@ -1,0 +1,5 @@
+{
+	// The C# extension loads only the VNS.MultiLanguageTextbox package in nuget/
+	"dotnet.defaultSolution": "nuget/VNS.MultiLanguageTextbox.sln",
+	"dotnet.automaticallyCreateSolutionInWorkspace": false
+}

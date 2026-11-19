@@ -1,14 +1,21 @@
 {
 	"name": "vns-umbraco-property-editors",
 	"version": "1.0.2",
-	"description": "Multi-language textbox property editor for Umbraco 14+",
+	"private": true,
+	"description": "Multi-language textbox property editor for Umbraco 17, shipped as the NuGet package VNS.MultiLanguageTextbox.",
 	"author": "Martin H. Schläger",
 	"license": "MIT",
 	"type": "module",
 	"scripts": {
-		"build": "./build.sh",
-		"vite:build": "vite build",
-		"watch": "vite build --watch"
+		"clean": "rm -f nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/*.js nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox/*.js.map",
+		"build": "npm run clean && vite build",
+		"watch": "vite build --watch",
+		"version:sync": "node scripts/sync-version.mjs",
+		"version:patch": "npm version patch --no-git-tag-version && npm run version:sync",
+		"version:minor": "npm version minor --no-git-tag-version && npm run version:sync",
+		"version:major": "npm version major --no-git-tag-version && npm run version:sync",
+		"release:check": "npm run pack",
+		"pack": "npm run build && dotnet pack nuget/VNS.MultiLanguageTextbox.csproj -c Release -o nuget/artifacts"
 	},
 	"devDependencies": {
 		"@umbraco-cms/backoffice": "^17.0.0",

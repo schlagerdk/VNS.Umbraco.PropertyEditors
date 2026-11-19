@@ -6,7 +6,6 @@ yarn-error.log*
 yarn.lock
 
 # IDE
-.vscode/
 .idea/
 *.swp
 *.swo
@@ -32,3 +31,8 @@ temp/
 # Build output
 dist/
 release/
+
+# The NuGet package's build output
+nuget/bin/
+nuget/obj/
+nuget/artifacts/

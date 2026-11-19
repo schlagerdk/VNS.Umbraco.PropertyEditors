@@ -1,23 +1,20 @@
 import { defineConfig } from 'vite';
 
-const editorName = process.env.EDITOR_NAME;
-const editorEntry = process.env.EDITOR_ENTRY;
-
-if (!editorName || !editorEntry) {
-  throw new Error('EDITOR_NAME and EDITOR_ENTRY must be provided when building a property editor.');
-}
-
+// Builds the property editor into the NuGet package's static web assets (nuget/wwwroot/App_Plugins/<name>/), which
+// the site serves from /App_Plugins/<name>/. The umbraco-package.json in that folder is kept in git, not built.
+const editorName = 'VNS.MultiLanguageTextbox';
 const fileName = editorName.toLowerCase().replace(/\./g, '-');
 
 export default defineConfig({
   build: {
     lib: {
-      entry: editorEntry,
-      formats: ["es"],
+      entry: `src/PropertyEditors/${editorName}/${fileName}.element.ts`,
+      formats: ['es'],
       fileName: fileName,
     },
-    outDir: `App_Plugins/${editorName}`,
-    emptyOutDir: true,
+    outDir: `nuget/wwwroot/App_Plugins/${editorName}`,
+    // Keep umbraco-package.json: npm run clean removes the old build output
+    emptyOutDir: false,
     sourcemap: false,
     rollupOptions: {
       external: [/^@umbraco/],

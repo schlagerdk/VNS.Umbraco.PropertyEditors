@@ -7,7 +7,7 @@
 			"type": "propertyEditorUi",
 			"alias": "VNS.MultiLanguageTextbox.PropertyEditorUi",
 			"name": "VNS Multi Language Textbox Property Editor UI",
-			"element": "/App_Plugins/VNS.MultiLanguageTextbox/vns-multilanguagetextbox.js",
+			"element": "/App_Plugins/VNS.MultiLanguageTextbox/vns-multilanguagetextbox.js?v=1.0.2",
 			"elementName": "vns-multilanguagetextbox-property-editor-ui",
 			"meta": {
 				"label": "Multi Language Textbox",

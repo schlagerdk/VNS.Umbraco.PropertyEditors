@@ -1,0 +1,41 @@
+{
+	// The NuGet package (VNS.MultiLanguageTextbox) is in nuget/: the repository's root has no project of its own.
+	// Each task first builds the backoffice code (src/PropertyEditors/VNS.MultiLanguageTextbox -> nuget/wwwroot/App_Plugins/VNS.MultiLanguageTextbox) with npm.
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"label": "npm build",
+			"type": "npm",
+			"script": "build",
+			"problemMatcher": [],
+			"group": "build"
+		},
+		{
+			"label": "Debug",
+			"type": "process",
+			"command": "dotnet",
+			"args": ["build", "${workspaceFolder}/nuget/VNS.MultiLanguageTextbox.csproj", "-c", "Debug"],
+			"dependsOn": "npm build",
+			"problemMatcher": "$msCompile",
+			"group": "build"
+		},
+		{
+			"label": "Release",
+			"type": "process",
+			"command": "dotnet",
+			"args": ["build", "${workspaceFolder}/nuget/VNS.MultiLanguageTextbox.csproj", "-c", "Release"],
+			"dependsOn": "npm build",
+			"problemMatcher": "$msCompile",
+			"group": "build"
+		},
+		{
+			"label": "Pack Nuget",
+			"type": "process",
+			"command": "dotnet",
+			"args": ["pack", "${workspaceFolder}/nuget/VNS.MultiLanguageTextbox.csproj", "-c", "Release", "-o", "${workspaceFolder}/nuget/artifacts"],
+			"dependsOn": "npm build",
+			"problemMatcher": "$msCompile",
+			"group": "build"
+		}
+	]
+}
