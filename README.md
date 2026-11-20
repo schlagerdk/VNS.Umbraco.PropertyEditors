@@ -2,7 +2,7 @@
 
 Custom property editors for the Umbraco 18 backoffice. Today it holds one editor, **VNS.MultiLanguageTextbox**, shipped as the NuGet package `VNS.MultiLanguageTextbox`.
 
-> Compatibility: Umbraco 18.3.0 and newer 18.x, .NET 10
+> Compatibility: Umbraco 18.3.2 and newer 18.x, .NET 10
 
 ## Installation
 
@@ -69,12 +69,12 @@ scripts/sync-version.mjs
 
 ## Versioning Strategy
 
-The versions follow Umbraco's, as in VNS.Harbor: `18.3.0` is for Umbraco 18.3.0 and newer. A fourth number (`18.3.0.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[18.3.0, 19.0.0)`. Umbraco 17 is no longer supported.
+The versions follow Umbraco's, as in VNS.Harbor: `18.3.2` is for Umbraco 18.3.2 and newer. A fourth number (`18.3.2.1`) is a fix of the package for the same Umbraco. The NuGet package allows Umbraco `[18.3.2, 19.0.0)`. Umbraco 17 is no longer supported.
 
 There is one version: the one in `package.json`. The NuGet package, the Umbraco package manifest (shown under Packages in the backoffice) and the git tag always have the same one.
 
 ```bash
-npm run version:set 18.3.0.1   # sets the version and writes it everywhere
+npm run version:set 18.3.2.1   # sets the version and writes it everywhere
 npm run version:sync         # writes the version in package.json everywhere (every build does this)
 ```
 
@@ -90,7 +90,7 @@ It is written to:
 1. Set the version:
 
 ```bash
-npm run version:set 18.3.0.1
+npm run version:set 18.3.2.1
 ```
 
 2. Build and pack:
@@ -103,15 +103,15 @@ npm run release:check
 
 ```bash
 git add .
-git commit -m "release: v18.3.0.1"
-npm run release:tag          # tags v18.3.0.1; refuses if anything is uncommitted, the versions differ or the tag exists
-git push origin master v18.3.0.1
+git commit -m "release: v18.3.2.1"
+npm run release:tag          # tags v18.3.2.1; refuses if anything is uncommitted, the versions differ or the tag exists
+git push origin master v18.3.2.1
 ```
 
 4. Create a GitHub release from the tag, and push the package to nuget.org:
 
 ```bash
-dotnet nuget push nuget/artifacts/VNS.MultiLanguageTextbox.18.3.0.1.nupkg --source https://api.nuget.org/v3/index.json --api-key <key>
+dotnet nuget push nuget/artifacts/VNS.MultiLanguageTextbox.18.3.2.1.nupkg --source https://api.nuget.org/v3/index.json --api-key <key>
 ```
 
 ## Add A New Property Editor

@@ -23,7 +23,7 @@ The source code is at [github.com/schlagerdk/VNS.Umbraco.PropertyEditors](https:
 
 ## Requirements
 
-- Umbraco 18.3.0 or newer 18.x, .NET 10
+- Umbraco 18.3.2 or newer 18.x, .NET 10
 
 ## License
 
