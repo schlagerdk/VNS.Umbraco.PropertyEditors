@@ -28,10 +28,6 @@ logs/
 tmp/
 temp/
 
-# Build output
-dist/
-release/
-
 # The NuGet package's build output
 nuget/bin/
 nuget/obj/
